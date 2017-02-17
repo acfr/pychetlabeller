@@ -36,7 +36,7 @@ address these features.
 ## Installation
 1. Install prerequisites (svgwrite)
 2. Clone this repository
-   git clone https://github.com/sbargoti/pychetlabeller.git pychetlabeller
+   git clone https://github.com/acfr/pychetlabeller.git pychetlabeller
 3. Build and install
     python setup.py build && sudo python setup.py install
 
