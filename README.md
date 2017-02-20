@@ -31,7 +31,7 @@ address these features.
 ## Prerequisites
 
     sudo apt-get install libgeos-dev libgeos++-dev python-pip python2.7-dev libxext-dev python-qt4 qt4-dev-tools build-essential
-    sudo -H pip install -U svgwrite shapely
+    sudo -H pip install -U svgwrite shapely simplejson
     
 ## Installation
 1. Install prerequisites (svgwrite)
