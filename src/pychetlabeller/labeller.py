@@ -380,7 +380,7 @@ class SelectDropType(QtGui.QDialog):
 
 class ObjectDrawPanel(QtGui.QGraphicsPixmapItem):
     """Establish a pixmap item on which labelling (painting) will be performed"""
-    def __init__(self, pixmap=None, parent=None, scene=None, tool='circle', labelmap=None):
+    def __init__(self, pixmap=None, parent=None, scene=None, tool='circle', labelmap=None, penwidth=1):
         self.is_initialised = False
         super(ObjectDrawPanel, self).__init__()
         # Class variables
@@ -408,6 +408,7 @@ class ObjectDrawPanel(QtGui.QGraphicsPixmapItem):
         #TODO: Tidy brushes
         self.highlightbrushes = []
         self.savebrushes = []
+        self.penwidth = penwidth
         self.setBrushes()
         # Set up options
         self.setAcceptHoverEvents(True)
@@ -431,7 +432,7 @@ class ObjectDrawPanel(QtGui.QGraphicsPixmapItem):
         """Set the brushes for normal view, annotated view, highlighted view"""
         self.pen = QtGui.QPen(QtCore.Qt.SolidLine)
         self.pen.setColor(QtCore.Qt.black)
-        self.pen.setWidth(1)
+        self.pen.setWidth(self.penwidth)
         self.savebrushes = [
             QtGui.QBrush(QtGui.QColor(my_colormap[label_no][0],
             my_colormap[label_no][1],
@@ -497,6 +498,7 @@ class MainWindow(QtGui.QMainWindow):
         self.scroll_zoom_delta = 0.1
         QtGui.QMainWindow.__init__(self)
         # Set up the under interface - as designed in Qt Designer
+        self.penwidth = 1
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
         self.connectSignals()
@@ -684,7 +686,7 @@ class MainWindow(QtGui.QMainWindow):
         self.firstImage = False
         # Set scene and add to graphics view
         self.scene = QtGui.QGraphicsScene()
-        self.imagePanel = ObjectDrawPanel(scene=self.scene, parent=self, tool=self.tool_str, labelmap=self.labelmap)
+        self.imagePanel = ObjectDrawPanel(scene=self.scene, parent=self, tool=self.tool_str, labelmap=self.labelmap, penwidth=self.penwidth)
         self.imagePanel.setPixmap(self.pixmap)
         self.imagePanel.defaultColorPixmap = self.pixmap
         self.change_brightness_contrast()
@@ -892,6 +894,7 @@ def parse_args():
     parser.add_argument('--tool', dest='tool', default='circle', help='circle or rectangle', type=str)
     parser.add_argument('--labelmap', dest='labelmap', default=None, help='JSON file for annotation labels')
     parser.add_argument('--isbgr', dest='isbrg', )
+    parser.add_argument('--penwidth', dest='penwidth', default=1, help='pen width', type=int)
     args = parser.parse_args()
     return args
 
@@ -919,6 +922,7 @@ def main(args=None):
     app = QtGui.QApplication(sys.argv)
     main_window = MainWindow()
     main_window.tool_str = args.tool
+    main_window.penwidth = args.penwidth
     main_window.labelmap = parse_labelmap(labelmapfile=args.labelmap)
     main_window.show()
     if args.annotation_folder is not None:
