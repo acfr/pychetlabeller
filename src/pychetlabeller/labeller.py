@@ -898,6 +898,7 @@ def parse_args():
     args = parser.parse_args()
     return args
 
+
 def parse_labelmap(labelmapfile=None):
     if labelmapfile is not None and os.path.exists(labelmapfile):
         import simplejson as json
