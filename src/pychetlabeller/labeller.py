@@ -479,7 +479,7 @@ class MainWindow(QtGui.QMainWindow):
         self.folder_image = None
         self.pixmap = None
         self.labelmap = None
-        self.scale = 1.
+        #self.scale = 1.
         self.tool_str = 'circle'
         # Define key and mouse function names
         self.key_alternate_tool = QtCore.Qt.Key_Control
@@ -848,7 +848,7 @@ def parse_args():
     parser = argparse.ArgumentParser(description='Object annotation toolbox')
     parser.add_argument('image_folder', metavar='IF', nargs='?', default=None, help='Image folder')
     parser.add_argument('annotation_folder', metavar='AF', nargs='?', default=None, help='Annotation folder')
-    parser.add_argument('--scale', type = float, default=1, help='scale image in the viewer (quick and dirty for now), default: %(default)f')
+    #parser.add_argument('--scale', type = float, default=1, help='scale image in the viewer (quick and dirty for now), default: %(default)f')
     parser.add_argument('--tool', dest='tool', default='circle', help='circle or rectangle', type=str)
     parser.add_argument('--labelmap', dest='labelmap', default=None, help='JSON file for annotation labels; default labels: 0,1,...,9; 0 for background; use number keys to set desired label')
     parser.add_argument('--isbgr', dest='isbrg', )
@@ -877,7 +877,7 @@ def main(args=None):
     main_window.tool_str = args.tool
     main_window.penwidth = args.penwidth
     main_window.labelmap = parse_labelmap(labelmapfile=args.labelmap)
-    main_window.scale = args.scale
+    #main_window.scale = args.scale
     main_window.show()
     if args.annotation_folder is not None: main_window.setLabelDirectory(args.annotation_folder)
     if args.image_folder is not None: main_window.openImageDirectory(args.image_folder)
