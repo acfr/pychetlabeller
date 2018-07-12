@@ -24,7 +24,8 @@ except AttributeError:
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName(_fromUtf8("MainWindow"))
-        MainWindow.resize(1211, 872)
+        MainWindow.resize(1600, 1200) #MainWindow.resize(1211, 872)
+        #MainWindow.showMaximized()
         self.centralwidget = QtGui.QWidget(MainWindow)
         self.centralwidget.setMouseTracking(True)
         self.centralwidget.setObjectName(_fromUtf8("centralwidget"))
@@ -165,7 +166,7 @@ class Ui_MainWindow(object):
         self.gridLayout_3.addWidget(self.graphicsView, 0, 0, 1, 3)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtGui.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 1211, 25))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 1600, 25)) #self.menubar.setGeometry(QtCore.QRect(0, 0, 1211, 25))
         self.menubar.setObjectName(_fromUtf8("menubar"))
         self.menuFIle = QtGui.QMenu(self.menubar)
         self.menuFIle.setObjectName(_fromUtf8("menuFIle"))

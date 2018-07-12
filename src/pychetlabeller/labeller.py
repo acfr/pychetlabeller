@@ -55,8 +55,7 @@ class LabelDataset(object):
     def saveSVG(self, output_filename):
         """Save the shapes in SVG format"""
         dwg = svgwrite.Drawing(output_filename, profile='tiny', size=self.image_size)
-        for datum in self.data:
-            dwg.add(datum.svg_shape())
+        for datum in self.data: dwg.add(datum.svg_shape())
         dwg.save()
     def saveCSV(self, output_filename, field_delimiter=',', line_delimiter='\n'):
         """Save the shapes as CSV"""
@@ -67,10 +66,8 @@ class LabelDataset(object):
     def load(self, label_path, tool='circle'):
         '''try load the default path, or given label_path'''
         self.label_path = label_path
-        try:
-            label_file = open(self.label_path, 'r')
-        except IOError:
-            return False # Couldn't find file
+        try: label_file = open(self.label_path, 'r')
+        except IOError: return False # Couldn't find file
         for line in csv.reader(label_file):
             try:
                 #is_circle = True #TODO: complete stub
@@ -84,14 +81,12 @@ class LabelDataset(object):
                     self.add(LabelRectangle(int(line[5]), float(line[1]), float(line[2]), float(line[3]), float(line[4]), label_name=label_name))
             except ValueError:
                 # Things that don't convert will be skipped
-                if line[0][0] != '#': # ignore comments
-                    print "WARNING: Skipped a line (ValueError) '%s'" % line
+                if line[0][0] != '#': print "WARNING: Skipped a line (ValueError) '%s', since it starts with # and thus considered as comment" % line
         label_file.close()
     def find(self, labelshape_id):
         '''find a LabelShape given by ID'''
         results = [datum for datum in self.data if datum.id == labelshape_id]
-        if len(results):
-            return results[0]
+        if len(results): return results[0]
         return None
     def data_at(self, position):
         '''return all the data that lie at a point'''
@@ -107,25 +102,15 @@ class LabelDataset(object):
 #         raise NotImplementedError("Command::execute")
 
 class Tool(object):
-    def __init__(self):
-        self.position = QtCore.QPointF(0, 0)
-        self.labelmap=None
-    def click(self, parent, button, release=False):
-        raise NotImplementedError("Tool::click")
-    def wheel(self, parent, QWheelEvent):
-        pass
-    def paint(self, parent, QPainter, QStyleOptionGraphicsItem, QWidget):
-        raise NotImplementedError("Tool::paint")
-    def mouse_move(self, parent, pos):
-        self.position = pos
-    def key_down(self, parent, event):
-        pass
-    def key_up(self, parent, event):
-        pass
-    def enable(self, parent):
-        pass
-    def disable(self, parent):
-        pass
+    def __init__(self): self.position = QtCore.QPointF(0, 0); self.labelmap=None
+    def click(self, parent, button, release=False): raise NotImplementedError("Tool::click")
+    def wheel(self, parent, QWheelEvent): pass
+    def paint(self, parent, QPainter, QStyleOptionGraphicsItem, QWidget): raise NotImplementedError("Tool::paint")
+    def mouse_move(self, parent, pos): self.position = pos
+    def key_down(self, parent, event): pass
+    def key_up(self, parent, event): pass
+    def enable(self, parent): pass
+    def disable(self, parent): pass
 
 class Tool_Circle(Tool):
     '''This tool creates a circle when clicked'''
@@ -141,8 +126,7 @@ class Tool_Circle(Tool):
             return
         if modifiers == QtCore.Qt.ShiftModifier and button == QtCore.Qt.LeftButton:
             datum = sorted(label_dataset.data_at(point))
-            if datum:
-                parent.highlight(datum[0])
+            if datum: parent.highlight(datum[0])
         elif modifiers == QtCore.Qt.NoModifier and button == QtCore.Qt.LeftButton:
             parent.add_datum(LabelCircle(self.label, point[0], point[1], self.radius,
                 label_name=self.labelmap[ [x['object_id'] for x in self.labelmap].index(self.label) ]['object_name']))
@@ -192,32 +176,25 @@ class Tool_Rectangle(Tool):
         self.size_scroll_delta_precise = 2 # pixels
         self.resize_dim = Tool_Rectangle.RESIZE_X | Tool_Rectangle.RESIZE_Y
     def click(self, parent, button, release=False):
-        if release:
-            return
+        if release: return
         modifiers = QtGui.QApplication.keyboardModifiers()
         point = (self.position.x(), self.position.y())
         if modifiers == QtCore.Qt.ShiftModifier and button == QtCore.Qt.LeftButton:
             datum = sorted(label_dataset.data_at(point))
-            if datum:
-                parent.highlight(datum[0])
+            if datum: parent.highlight(datum[0])
         elif modifiers == QtCore.Qt.NoModifier and button == QtCore.Qt.LeftButton:
-            if self.mode == Tool_Rectangle.MODE_CENTRE:
-                point = (self.position.x() - self.dx // 2, self.position.y() - self.dy // 2)
+            if self.mode == Tool_Rectangle.MODE_CENTRE: point = (self.position.x() - self.dx // 2, self.position.y() - self.dy // 2)
             parent.add_datum(LabelRectangle(self.label, point[0], point[1], self.dx, self.dy, 
                 label_name=self.labelmap[ [x['object_id'] for x in self.labelmap].index(self.label) ]['object_name']))
     def wheel(self, parent, QWheelEvent):
         delta = QWheelEvent.delta()
         modifiers = QtGui.QApplication.keyboardModifiers()
         if modifiers == QtCore.Qt.ShiftModifier: # 1-pixel delta mode
-            if self.resize_dim & Tool_Rectangle.RESIZE_X:
-                self.dx = max(1, self.dx + np.sign(delta) * self.size_scroll_delta_precise)
-            if self.resize_dim & Tool_Rectangle.RESIZE_Y:
-                self.dy = max(1, self.dy + np.sign(delta) * self.size_scroll_delta_precise)
+            if self.resize_dim & Tool_Rectangle.RESIZE_X: self.dx = max(1, self.dx + np.sign(delta) * self.size_scroll_delta_precise)
+            if self.resize_dim & Tool_Rectangle.RESIZE_Y: self.dy = max(1, self.dy + np.sign(delta) * self.size_scroll_delta_precise)
         else: # percent mode
-            if self.resize_dim & Tool_Rectangle.RESIZE_X:
-                self.dx = max(1, self.dx * (1 + np.sign(delta) * self.size_scroll_delta))
-            if self.resize_dim & Tool_Rectangle.RESIZE_Y:
-                self.dy = max(1, self.dy * (1 + np.sign(delta) * self.size_scroll_delta))
+            if self.resize_dim & Tool_Rectangle.RESIZE_X: self.dx = max(1, self.dx * (1 + np.sign(delta) * self.size_scroll_delta))
+            if self.resize_dim & Tool_Rectangle.RESIZE_Y: self.dy = max(1, self.dy * (1 + np.sign(delta) * self.size_scroll_delta))
         parent.update()
         super(Tool_Rectangle, self).wheel(parent, QWheelEvent)
     def paint(self, parent, QPainter, QStyleOptionGraphicsItem, QWidget):
@@ -275,8 +252,7 @@ class Tool_TransformView(Tool):
     def wheel(self, parent, QWheelEvent):
         delta = np.sign(QWheelEvent.delta()) * 0.1 
         parent.zoom(delta)
-    def paint(self, parent, QPainter, QStyleOptionGraphicsItem, QWidget):
-        pass
+    def paint(self, parent, QPainter, QStyleOptionGraphicsItem, QWidget): pass
     def enable(self, parent):
         self.last_cursor = parent.cursor()
         parent.setCursor(QtGui.QCursor(QtCore.Qt.OpenHandCursor))
@@ -299,16 +275,12 @@ class LabelShape(object):
         LabelShape.instances += 1
     def populate_view(self, view, **kwargs):
         pass
-    def __hash__(self):
-        return self.id
+    def __hash__(self): return self.id
     def __cmp__(self, other):
-        if self.id > other.id:
-            return 1
-        elif self.id < other.id:
-            return -1
+        if self.id > other.id: return 1
+        elif self.id < other.id: return -1
         return 0
-    def serialize(self):
-        raise Exception("serialize UNIMPLEMENTED for this type")
+    def serialize(self): raise Exception("serialize UNIMPLEMENTED for this type")
 
 class LabelRectangle(LabelShape):
     enum = 1
@@ -330,8 +302,7 @@ class LabelRectangle(LabelShape):
             view.setText(4, str(self.label_name))
         elif isinstance(view, QtGui.QPainter):
             view.drawRect(x, y, dx, dy)
-    def serialize(self):
-        return (self.id,) + self.get_rect_data() + (self.label,)
+    def serialize(self): return (self.id,) + self.get_rect_data() + (self.label,)
     def svg_shape(self):
         '''return the SVG shape that this object represents'''
         r, g, b = my_colormap[self.label]
@@ -339,7 +310,6 @@ class LabelRectangle(LabelShape):
         return svgwrite.shapes.Rect(insert=(x, y)
             , size=(dx,dy), stroke=svgwrite.rgb(r, g, b, 'RGB')
             , fill=svgwrite.rgb(r, g, b, 'RGB'))
-
 
 class LabelCircle(LabelShape):
     enum = 1
@@ -395,12 +365,9 @@ class ObjectDrawPanel(QtGui.QGraphicsPixmapItem):
         self.changeMade = None
         # Use arg parse to select tool:
         self.tool_last = Tool_TransformView()
-        if tool == 'circle':
-            self.tool = Tool_Circle()
-        elif tool == 'rectangle':
-            self.tool = Tool_Rectangle()
-        else:
-            raise ValueError('Input tool {} not valid'.format(tool))
+        if tool == 'circle': self.tool = Tool_Circle()
+        elif tool == 'rectangle': self.tool = Tool_Rectangle()
+        else: raise ValueError('Input tool {} not valid'.format(tool))
         self.tool.labelmap = labelmap
         
         self.num_labels = len(labelmap)
@@ -445,17 +412,14 @@ class ObjectDrawPanel(QtGui.QGraphicsPixmapItem):
            self.highlight_opacity)) for label_no in range(self.num_labels)]
     def paint(self, QPainter, QStyleOptionGraphicsItem, QWidget):
         """Painter to draw annotations"""
-        if not self.is_initialised:
-            return
+        if not self.is_initialised: return
         # Set image and pen
         QPainter.drawPixmap(0, 0, self.pixmap())
         QPainter.setPen(self.pen)
         self.tool.paint(self, QPainter, QStyleOptionGraphicsItem, QWidget)
         for datum in label_dataset.data:
-            if datum is self.highlighted_datum:
-                QPainter.setBrush(self.highlightbrushes[datum.label])
-            else:
-                QPainter.setBrush(self.savebrushes[datum.label])
+            if datum is self.highlighted_datum: QPainter.setBrush(self.highlightbrushes[datum.label])
+            else: QPainter.setBrush(self.savebrushes[datum.label])
             datum.populate_view(QPainter)
     def hoverMoveEvent(self, event): #QGraphicsSceneHoverEvent
         '''While moving inside the picture, update x,y position for drawing annotation tool
@@ -515,6 +479,7 @@ class MainWindow(QtGui.QMainWindow):
         self.folder_image = None
         self.pixmap = None
         self.labelmap = None
+        self.scale = 1.
         self.tool_str = 'circle'
         # Define key and mouse function names
         self.key_alternate_tool = QtCore.Qt.Key_Control
@@ -534,8 +499,7 @@ class MainWindow(QtGui.QMainWindow):
 
         # Reset column widths for the tree widget
         columnWidths = [50,80,80,50,80]
-        for cidx, cw in enumerate(columnWidths):
-            self.ui.treeWidget.setColumnWidth(cidx, cw)
+        for cidx, cw in enumerate(columnWidths): self.ui.treeWidget.setColumnWidth(cidx, cw)
 
     def connectSignals(self):
         """ Connect all the components on the GUI to respective functions """
@@ -598,10 +562,10 @@ class MainWindow(QtGui.QMainWindow):
         """Set scene properties - disable scrolling"""
         self.ui.graphicsView.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOn)
         self.ui.graphicsView.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOn)
+        pass
     def eventFilter(self, QObject, QEvent):
         """Filter out wheel event from the window - we want to reserve the wheel for other commands"""
-        if QObject is self.ui.graphicsView.viewport() and QEvent.type() == QtCore.QEvent.Wheel:
-            return True
+        if QObject is self.ui.graphicsView.viewport() and QEvent.type() == QtCore.QEvent.Wheel: return True
         return False
     def mainKeyPressEvent(self, event):
         key = event.key()
@@ -685,13 +649,15 @@ class MainWindow(QtGui.QMainWindow):
         self.original_size = pixmap.width(), pixmap.height()
         self.firstImage = False
         # Set scene and add to graphics view
-        self.scene = QtGui.QGraphicsScene()
+        self.scene = QtGui.QGraphicsScene() #self.scene = QtGui.QGraphicsScene( 0, 0, pixmap.width(), pixmap.height() )
+        #self.scene.setSceneRect(  )
         self.imagePanel = ObjectDrawPanel(scene=self.scene, parent=self, tool=self.tool_str, labelmap=self.labelmap, penwidth=self.penwidth)
         self.imagePanel.setPixmap(self.pixmap)
         self.imagePanel.defaultColorPixmap = self.pixmap
         self.change_brightness_contrast()
         self.scene.addItem(self.imagePanel)
         self.ui.graphicsView.setScene(self.scene)
+        self.ui.graphicsView.resize( pixmap.width(), pixmap.height() )
         self.ui.graphicsView.setSceneRect(0, 0, \
             self.ui.graphicsView.size().width() - 10, \
             self.ui.graphicsView.size().height() - 10)
@@ -703,8 +669,9 @@ class MainWindow(QtGui.QMainWindow):
     def loadImage(self, image_path):
         """ Given an image path, load image onto graphics item """
         global label_dataset
-        # Get current pixmap
-        self.pixmap = QtGui.QPixmap(image_path)
+        self.pixmap = QtGui.QPixmap(image_path) # Get current pixmap
+        # todo? scale image
+        #self.pixmap = self.pixmap.scaled(QtCore.QSize(self.pixmap.width() * self.scale, self.pixmap.height() * self.scale), QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation)
         pixmap = self.pixmap
         label_dataset = LabelDataset(image_path, image_size=(pixmap.height(), pixmap.width()), labelmap=self.labelmap)
         if self.firstImage \
@@ -713,8 +680,7 @@ class MainWindow(QtGui.QMainWindow):
             self.initImage(pixmap)
         # Resize according to previous shape/size
         if self.original_size is not None:
-            pixmap = pixmap.scaled(QtCore.QSize(self.original_size[0], self.original_size[1]), \
-                QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation)
+            pixmap = pixmap.scaled(QtCore.QSize(self.original_size[0], self.original_size[1]), QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation)
         self.imagePanel.setPixmap(pixmap)
         self.imagePanel.defaultColorPixmap = pixmap
         self.change_brightness_contrast()
@@ -722,8 +688,7 @@ class MainWindow(QtGui.QMainWindow):
         self.imagePanel.changeMade = True
         # Load annotation if on already exists (and if autoload is ticked)
         #@TODO: First image does not auto-load annotations because UI is not init'd yet @priority: low
-        if self.ui.autoload_chk.isChecked():
-            self.loadAnnotations()
+        if self.ui.autoload_chk.isChecked(): self.loadAnnotations()
         self.populateTree()
     def previousImage(self):
         """ Navigate to previous image in the folder """
@@ -732,12 +697,10 @@ class MainWindow(QtGui.QMainWindow):
         """ Navigate to next image in the folder """
         # Save annotations if needed
         self.imagePanel.current_scale = 1.0
-        if self.ui.autosave_chk.isChecked() and self.imagePanel.changeMade:
-            self.saveAnnotations()
+        if self.ui.autosave_chk.isChecked() and self.imagePanel.changeMade: self.saveAnnotations()
         # Change entry in combobox
         index = self.ui.imageComboBox.currentIndex() + delta
-        if index < 0:
-            index = 0
+        if index < 0: index = 0
         self.ui.imageComboBox.setCurrentIndex(index)
     def changeImage(self, text):
         """ Call load image and set new image as title, combo box entry and image # """
@@ -765,14 +728,12 @@ class MainWindow(QtGui.QMainWindow):
         else:
             opendirectory = self.folder_image or '.'
             labelfolderchoice = str(QtGui.QFileDialog.getExistingDirectory(self, "Open directory", opendirectory))
-            if labelfolderchoice:
-                self.labelFolder = labelfolderchoice
+            if labelfolderchoice: self.labelFolder = labelfolderchoice
     def saveAnnotations(self):
         """Save annotations"""
         # Get the current image file name
         current_filename = os.path.splitext(str(self.ui.imageComboBox.currentText()))[0]
-        if self.labelFolder is None:
-            self.labelFolder = os.path.join(self.folder_image, '../labels/')
+        if self.labelFolder is None: self.labelFolder = os.path.join(self.folder_image, '../labels/')
         # Create label folder
         if not os.path.exists(self.labelFolder):
             self.ui.statusBar.showMessage('Created a Label Directory')
@@ -785,10 +746,8 @@ class MainWindow(QtGui.QMainWindow):
             overwrite_msg = 'Label file already exists for {}, overwrite?'.format(current_filename)
             reply = QtGui.QMessageBox.question(self, 'File already exists', overwrite_msg \
                 , QtGui.QMessageBox.Yes | QtGui.QMessageBox.No)
-            if reply == QtGui.QMessageBox.Yes:
-                self.ui.statusBar.showMessage('Overwriting previous label')
-            else:
-                return 0
+            if reply == QtGui.QMessageBox.Yes: self.ui.statusBar.showMessage('Overwriting previous label')
+            else: return 0
         self.ui.statusBar.showMessage('Saved to {}'.format(current_filename))
         label_dataset.save(os.path.join(self.labelFolder, current_filename))
 
@@ -844,8 +803,7 @@ Exit application: \tESC"""
 
 class FitImageGraphicsView(QtGui.QGraphicsView):
     """Resize function for window to properly fit an image."""
-    def showEvent(self, QShowEvent):
-        self.fitInView(self.sceneRect(), QtCore.Qt.KeepAspectRatio)
+    def showEvent(self, QShowEvent): self.fitInView(self.sceneRect(), QtCore.Qt.KeepAspectRatio)
 
 def convertQImageToMat(incomingImage):
     '''  Converts a QImage into an opencv MAT format  '''
@@ -858,8 +816,7 @@ def convertQImageToMat(incomingImage):
     return arr
 
 def convertMattoQImage(im, copy=False):
-    if im is None:
-        return QtGui.QImage()
+    if im is None: return QtGui.QImage()
     gray_color_table = [QtGui.qRgb(i, i, i) for i in range(256)]
     if im.dtype == np.uint8:
         if len(im.shape) == 2:
@@ -891,6 +848,7 @@ def parse_args():
     parser = argparse.ArgumentParser(description='Object annotation toolbox')
     parser.add_argument('image_folder', metavar='IF', nargs='?', default=None, help='Image folder')
     parser.add_argument('annotation_folder', metavar='AF', nargs='?', default=None, help='Annotation folder')
+    parser.add_argument('--scale', type = float, default=1, help='scale image in the viewer (quick and dirty for now), default: %(default)f')
     parser.add_argument('--tool', dest='tool', default='circle', help='circle or rectangle', type=str)
     parser.add_argument('--labelmap', dest='labelmap', default=None, help='JSON file for annotation labels; default labels: 0,1,...,9; 0 for background; use number keys to set desired label')
     parser.add_argument('--isbgr', dest='isbrg', )
@@ -901,35 +859,28 @@ def parse_args():
 def parse_labelmap(labelmapfile=None):
     if labelmapfile is not None and os.path.exists(labelmapfile):
         import simplejson as json
-        with open(labelmapfile, 'rb') as f:
-            labelmap = json.load(f)
+        with open(labelmapfile, 'rb') as f: labelmap = json.load(f)
     else:
         labelmap = []
         for i in range(9):
             cl = dict()
             cl['object_id'] = i
             cl['keyboard_shortcut'] = str(i)
-            if i == 0:
-                cl['object_name'] = 'background'
-            else:
-                cl['object_name'] = 'object{}'.format(i)
+            cl['object_name'] = 'background' if i == 0 else 'object{}'.format(i)
             labelmap.append(cl)
     return labelmap
 
 def main(args=None): 
-    if not args:
-        args = parse_args()
+    if not args: args = parse_args()
     app = QtGui.QApplication(sys.argv)
     main_window = MainWindow()
     main_window.tool_str = args.tool
     main_window.penwidth = args.penwidth
     main_window.labelmap = parse_labelmap(labelmapfile=args.labelmap)
+    main_window.scale = args.scale
     main_window.show()
-    if args.annotation_folder is not None:
-        main_window.setLabelDirectory(args.annotation_folder)
-    if args.image_folder is not None:
-        main_window.openImageDirectory(args.image_folder)
+    if args.annotation_folder is not None: main_window.setLabelDirectory(args.annotation_folder)
+    if args.image_folder is not None: main_window.openImageDirectory(args.image_folder)
     sys.exit(app.exec_())
 
-if __name__ == '__main__':
-    pass
+if __name__ == '__main__': pass
