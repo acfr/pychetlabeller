@@ -1,0 +1,5 @@
+numpy~=1.21.4
+svgwrite~=1.4.1
+PySide6~=6.2.1
+PyQt6~=6.2.1
+Shapely~=1.8.0
