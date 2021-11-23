@@ -49,6 +49,11 @@ python setup.py build && sudo python setup.py install
 ### Circle labelling toolbox
     python -m pychetlabeller <img dir> <label dir> --tool <circle | rectangle> --labelmap <labelmap.json>
 
+Examples:
+
+    python -m pychetlabeller /home/user/exported_images /home/user/labeled_images --tool rectangle --labelmap labelmap.json
+    python -m pychetlabeller C:/exported_images C:/labeled_images --tool rectangle --labelmap labelmap.json
+
 See src/pychetlabeller/sample_labelmap.json for example labelmap file
 
 ### Labelling multiple images
@@ -109,7 +114,13 @@ pip install --upgrade pip
 pip install -r requirements_linux.txt
 ```
 
-###Install Windows
-TODO:
+###Install Windows 10
 
+```
+python -m venv MY_FOLDER_ENV
+cd MY_FOLDER_ENV
+.\Scripts\activate.bat
+pip install --upgrade pip
+pip install -r requirements_windows.txt
+```
 
