@@ -29,20 +29,30 @@ changes its size and change the labelling output. Pychet Labeller aims to
 address these features.
 
 ## Prerequisites
-
-    sudo apt-get install libgeos-dev libgeos++-dev python-pip python2.7-dev libxext-dev python-qt4 qt4-dev-tools build-essential
-    sudo -H pip install -U svgwrite shapely simplejson
-    
+```    
+sudo apt-get install libgeos-dev libgeos++-dev python-pip python2.7-dev libxext-dev python-qt4 qt4-dev-tools build-essential
+sudo -H pip install -U svgwrite shapely simplejson
+```
 ## Installation
 1. Install prerequisites (svgwrite)
 2. Clone this repository
-   git clone https://github.com/acfr/pychetlabeller.git pychetlabeller
+```
+git clone https://github.com/acfr/pychetlabeller.git pychetlabeller
+```
 3. Build and install
-    python setup.py build && sudo python setup.py install
+```
+python setup.py build && sudo python setup.py install
+```
+
 
 ## Usage
 ### Circle labelling toolbox
     python -m pychetlabeller <img dir> <label dir> --tool <circle | rectangle> --labelmap <labelmap.json>
+
+Examples:
+
+    python -m pychetlabeller /home/user/exported_images /home/user/labeled_images --tool rectangle --labelmap labelmap.json
+    python -m pychetlabeller C:/exported_images C:/labeled_images --tool rectangle --labelmap labelmap.json
 
 See src/pychetlabeller/sample_labelmap.json for example labelmap file
 
@@ -88,3 +98,29 @@ Extentions to labeller - coming soon:
 
 ## Bugs
 Please contact author to report bugs @ bargoti.suchet@gmail.com
+
+## Qt6 and Python 3.8.10
+Calls to the classes were adapted for PyQt6, the adaptation carried out has been used as a point of comparison
+by ramon.morros@upc.edu at https://github.com/imatge-upc/pychetlabeller . Calls to signals and slots changed.
+Fixed code to bring it closer to pythonic notation. 
+Contact juancarlos.miranda@udl.cat for bugs in Qt4 --> Qt6 conversion
+
+###Install in Ubuntu 20.04.03 LTS
+```
+sudo apt-get install python3-pip
+sudo pip3 install virtualenv
+source ./venv/bin/activate
+pip install --upgrade pip
+pip install -r requirements_linux.txt
+```
+
+###Install Windows 10
+
+```
+python -m venv MY_FOLDER_ENV
+cd MY_FOLDER_ENV
+.\Scripts\activate.bat
+pip install --upgrade pip
+pip install -r requirements_windows.txt
+```
+
